@@ -19,7 +19,7 @@ c = float(donneeEntrer);
 
 discriminant = (b * b ) - ( 4 * a * c );
 
-if discriminant < 0: 
+if discriminant > 0: 
     racine1 = (-b + math.sqrt(-discriminant)) / (2 * a);
     racine2 = (-b - math.sqrt(-discriminant)) / (2 * a);
     print("Il existe deux racines réelles distinctes : %.3f et %.3f\n", racine1, racine2);
