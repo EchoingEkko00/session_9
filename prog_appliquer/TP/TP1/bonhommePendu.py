@@ -14,42 +14,50 @@ for i in bovary_liste:
 
 #Dessin du jeu bonhomme pendu
 nombreDeLettreTotal = 5
-
+positionPenduX:int
+positionPenduY:int
 turtle = Turtle()
-turtle.hideturtle()
-turtle.speed(0)
-turtle.fillcolor("black")
-turtle.pensize(2)
 
-turtle.goto(-100,0)
-turtle.pendown()
-turtle.begin_fill()
-for i in range(0,4):
-    turtle.forward(100)
-    turtle.right(90)
-turtle.end_fill()
-turtle.penup()
-turtle.goto(-50,0)
-turtle.left(90)
-turtle.pendown()
-turtle.forward(350)
-turtle.right(90)
-turtle.forward(150)
-turtle.right(90)
-turtle.forward(25)
-positionPenduX = turtle.xcor()
-positionPenduY = turtle.ycor()
+def dessinBonhommePendu() -> Vec2D:
+    turtle.hideturtle()
+    turtle.speed(0)
+    turtle.fillcolor("black")
+    turtle.pensize(2)
 
-positionX = -300
-turtle.left(90)
-for i in range(0,nombreDeLettreTotal):
     turtle.penup()
-    turtle.goto(positionX,-250)
+    turtle.goto(-100,0)
     turtle.pendown()
-    turtle.forward(75)
+    turtle.begin_fill()
+    for i in range(0,4):
+        turtle.forward(100)
+        turtle.right(90)
+    turtle.end_fill()
     turtle.penup()
-    positionX += 100
-    turtle.goto(positionX,-250)
+    turtle.goto(-50,0)
+    turtle.left(90)
+    turtle.pendown()
+    turtle.forward(350)
+    turtle.right(90)
+    turtle.forward(150)
+    turtle.right(90)
+    turtle.forward(25)
+    position = turtle.position()
+
+    turtle.left(90)
+    positionX = -300
+    for i in range(0,nombreDeLettreTotal):
+        turtle.penup()
+        turtle.goto(positionX,-250)
+        turtle.pendown()
+        turtle.forward(75)
+        turtle.penup()
+        positionX += 100
+        turtle.goto(positionX,-250)
+    return position
+
+vecteurPosition = dessinBonhommePendu()
+positionPenduX = vecteurPosition[0]
+positionPenduY = vecteurPosition[1]
 
 
 nombreDeVie = 6
@@ -57,15 +65,22 @@ vieCourante = 0
 lettreEssai:str
 playing = True
 while playing:
-    motHasard = "abaaa".upper()
-    print(motHasard, "est le mot a deviner")
+    motHasard = random.choice(mots).upper()
+    listeLettre = list(motHasard)
+    dictLettre = {}
+    print(motHasard)
+    for i in range(0,len(motHasard)):
+        dictLettre[i] = motHasard[i]
+    while True:
+        niveauDifficulte = int(input("Entrez le niveau de difficulte (1 ou 2) : "))
+        if niveauDifficulte == 1 or niveauDifficulte == 2:
+            break
     while (vieCourante != nombreDeVie) :
         while True:
             lettreEssai = input("Entrez lettre essai : ").upper()
             if len(lettreEssai) == 1:
                 break
-        listeLettre = list(motHasard)
-        if (lettreEssai in motHasard and listeLettre.count(lettreEssai) >= 1) :
+        if (lettreEssai in motHasard and listeLettre.count(lettreEssai) >= 1 and niveauDifficulte == 1) :
             positionLettre = 0
             for i in range(0,listeLettre.count(lettreEssai)):
                 positionLettre = listeLettre.index(lettreEssai,positionLettre)
@@ -73,7 +88,16 @@ while playing:
                     if positionLettre == i:
                         turtle.goto(-300 + (i*100),-250)
                         turtle.write(lettreEssai, font=("Arial", 80, "normal"))
+                dictLettre.pop(positionLettre)
                 positionLettre += 1
+        elif (lettreEssai in motHasard and lettreEssai in dictLettre.values() and niveauDifficulte == 2) :
+            for i in range(0,len(motHasard)):
+                if lettreEssai == dictLettre.get(i):
+                    turtle.goto(-300 + (i*100),-250)
+                    turtle.write(lettreEssai, font=("Arial", 80, "normal"))
+                    dictLettre.pop(i)
+                    break
+            
         else  : 
             #Dessin du bonhomme pendu etape par etape selon le nombre de vie restante
             if vieCourante == 0:
@@ -125,12 +149,19 @@ while playing:
                 turtle.penup()
                 turtle.left(-45)
             vieCourante += 1
+        if (len(dictLettre) == 0) :
+            print("Vous avez gagne!")
+            break
     if (nombreDeVie == vieCourante) :
         print("Vous avez perdu, le mot etait", motHasard)
     print("Voulez-vous rejouer ?")
     reponse = input("Oui ou Non ? ").lower()
     if reponse == "oui" or reponse == "o" :
         vieCourante = 0
+        turtle.reset()
+        vecteurPosition = dessinBonhommePendu()
+        positionPenduX = vecteurPosition[0]
+        positionPenduY = vecteurPosition[1]
     else :
         print("Programme terminer!")
         playing = False
