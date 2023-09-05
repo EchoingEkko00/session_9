@@ -6,6 +6,7 @@ nltk.download('punkt')
 # Lire le fichier bovary.txt et creer une liste de mots de 5 lettres
 fichier = open("bovary.txt", encoding="utf-8")
 texte = fichier.read()
+fichier.close()
 bovary_liste = nltk.word_tokenize(texte)
 mots = []
 for i in bovary_liste:
@@ -66,30 +67,27 @@ lettreEssai:str
 playing = True
 while playing:
     motHasard = random.choice(mots).upper()
-    listeLettre = list(motHasard)
     dictLettre = {}
-    print(motHasard)
     for i in range(0,len(motHasard)):
         dictLettre[i] = motHasard[i]
     while True:
-        niveauDifficulte = int(input("Entrez le niveau de difficulte (1 ou 2) : "))
-        if niveauDifficulte == 1 or niveauDifficulte == 2:
+        niveauDifficulte = input("Entrez le niveau de difficulte (1 ou 2) : ")
+        if (niveauDifficulte.isnumeric() == False):
+            continue
+        if int(niveauDifficulte) == 1 or int(niveauDifficulte) == 2:
+            niveauDifficulte = int(niveauDifficulte)
             break
     while (vieCourante != nombreDeVie) :
         while True:
             lettreEssai = input("Entrez lettre essai : ").upper()
             if len(lettreEssai) == 1:
                 break
-        if (lettreEssai in motHasard and listeLettre.count(lettreEssai) >= 1 and niveauDifficulte == 1) :
-            positionLettre = 0
-            for i in range(0,listeLettre.count(lettreEssai)):
-                positionLettre = listeLettre.index(lettreEssai,positionLettre)
-                for i in range(0,len(motHasard)):
-                    if positionLettre == i:
-                        turtle.goto(-300 + (i*100),-250)
-                        turtle.write(lettreEssai, font=("Arial", 80, "normal"))
-                dictLettre.pop(positionLettre)
-                positionLettre += 1
+        if (lettreEssai in motHasard and lettreEssai in dictLettre.values() and niveauDifficulte == 1) :
+            for i in range(0,len(motHasard)):
+                if lettreEssai == dictLettre.get(i):
+                    turtle.goto(-300 + (i*100),-250)
+                    turtle.write(lettreEssai, font=("Arial", 80, "normal"))
+                    dictLettre.pop(i)
         elif (lettreEssai in motHasard and lettreEssai in dictLettre.values() and niveauDifficulte == 2) :
             for i in range(0,len(motHasard)):
                 if lettreEssai == dictLettre.get(i):
@@ -97,7 +95,6 @@ while playing:
                     turtle.write(lettreEssai, font=("Arial", 80, "normal"))
                     dictLettre.pop(i)
                     break
-            
         else  : 
             #Dessin du bonhomme pendu etape par etape selon le nombre de vie restante
             if vieCourante == 0:
@@ -155,16 +152,16 @@ while playing:
     if (nombreDeVie == vieCourante) :
         print("Vous avez perdu, le mot etait", motHasard)
     print("Voulez-vous rejouer ?")
-    reponse = input("Oui ou Non ? ").lower()
-    if reponse == "oui" or reponse == "o" :
-        vieCourante = 0
-        turtle.reset()
-        vecteurPosition = dessinBonhommePendu()
-        positionPenduX = vecteurPosition[0]
-        positionPenduY = vecteurPosition[1]
-    else :
-        print("Programme terminer!")
-        playing = False
-        quit()
-keyboard.wait('esc')
-quit()
+    while True:
+        reponse = input("Oui ou Non ? ").lower()
+        if reponse == "oui" or reponse == "o" :
+            vieCourante = 0
+            turtle.reset()
+            vecteurPosition = dessinBonhommePendu()
+            positionPenduX = vecteurPosition[0]
+            positionPenduY = vecteurPosition[1]
+            break
+        elif reponse == "non" or reponse == "n" :
+           print("Programme terminer!")
+           playing = False
+           quit()

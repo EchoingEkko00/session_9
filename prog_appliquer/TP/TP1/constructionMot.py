@@ -17,7 +17,8 @@ vieCourante = 0
 motEssai:str
 playing = True
 while playing:
-    motHasard = random.choice(mots).lower()
+    #random.choice(mots).lower()
+    motHasard = "aeaab".lower()
     print(motHasard, "est le mot a deviner")
     while (vieCourante != nombreDeVie) :
         print("Esssai no", vieCourante + 1)

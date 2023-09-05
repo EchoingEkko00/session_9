@@ -1,7 +1,11 @@
 motHasard = "abaaa".upper()
-#Create a dictionary with the the position of each letter in the word as key and the letter as value
+
 dictLettre = {}
 for i in range(0,len(motHasard)):
     dictLettre[i] = motHasard[i]
-
+print(dictLettre)
 print("A" in dictLettre.values())
+for i in range(0,len(motHasard)):
+    if "A" == dictLettre.get(i):
+        print("ok")
+        dictLettre.pop(i)
