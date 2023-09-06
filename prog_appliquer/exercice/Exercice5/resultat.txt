@@ -1,0 +1,3 @@
+Nombre de mots : 5000
+Nombre de voyelles : 11875
+Nombre de lignes : 113
