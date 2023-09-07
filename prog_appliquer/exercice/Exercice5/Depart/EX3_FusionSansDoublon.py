@@ -25,6 +25,7 @@ print()
 # en fusionnant les 2 listes et en enlevant les doublons.
 # Afficher ensuite la liste.
 # ...
+liste3 = list(set(liste1 + liste2))
 
 # Affichage de la liste résultante
 print("Liste 3:")

@@ -12,10 +12,12 @@ print(laListe)
 # mais sans utiliser l'opérateur d'affectation.
 # Afficher ensuite la liste.
 # ...
-
+for i in range(len(laListe) // 2):
+    laListe[i], laListe[len(laListe) - i - 1] = laListe[len(laListe) - i - 1], laListe[i]
 print(laListe)
 
 # Ajoutez ci-dessous le code nécessaire pour inverser de nouveau la liste mais sans utiliser de boucle.
 # ...
+laListe.reverse()
 
 print(laListe)

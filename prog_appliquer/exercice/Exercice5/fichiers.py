@@ -1,4 +1,5 @@
 import nltk
+import re
 
 #Exercice fichier
 # 1.a
@@ -35,13 +36,16 @@ fichier.write("Nombre de mots : " + str(len(texte.split()))
 moyenne:int = 0
 somme:int = 0
 fichier = open("nombres.txt", "r+")
-texte = fichier.readlines()
+texte = fichier.read()
+texte = re.sub(r'[a-zA-Z].+', "", texte)
+listeNombre = texte.split()
+for i in range(len(listeNombre)):
+    moyenne += int(listeNombre[i])
+    somme += int(listeNombre[i])
+moyenne = moyenne / len(listeNombre)
+fichier.write("\nSomme : " + str(somme) + "\n" 
+              + "Moyenne : " + str(moyenne))
+fichier.close()
+fichier = open("nombres.txt", "r+")
+texte = fichier.read()
 print(texte)
-# listeNombre = texte.split()
-# for i in range(len(listeNombre)):
-#     moyenne += int(listeNombre[i])
-#     somme += int(listeNombre[i])
-# moyenne = moyenne / len(listeNombre)
-# fichier.write("Somme : " + str(somme) + "\n" 
-#               + "Moyenne : " + str(moyenne))
-# fichier.close()

@@ -13,6 +13,9 @@ print(" Le tuple initial:", leTuple)
 # Afficher ensuite la liste.
 # ...
 
+liste1 = []
+for i in leTuple:
+    liste1.append(i)
 print("Liste avec boucle for:", liste1)
 
 # Avec une boucle while
@@ -21,6 +24,11 @@ print("Liste avec boucle for:", liste1)
 # Afficher ensuite la liste.
 # ...
 
+liste2 = []
+i = 0
+while i < len(leTuple):
+    liste2.append(leTuple[i])
+    i += 1
 print("Liste avec boucle while:", liste2)
 
 # Sans boucle explicite
@@ -28,5 +36,5 @@ print("Liste avec boucle while:", liste2)
 # et qui contiendra les mêmes éléments que le tuple plus haut.
 # Afficher ensuite la liste.
 # ...
-
+liste3 = list(leTuple)
 print("Liste sans boucle:", liste3)

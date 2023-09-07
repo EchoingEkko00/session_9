@@ -21,6 +21,12 @@ print()
 # Ajoutez ci-dessous le code nécessaire pour épurer la liste en enlevant les nombres négatifs.
 # Afficher ensuite la liste.
 # ...
+i = 0
+while i < len(liste):
+    if liste[i] < 0:
+        del liste[i]
+    else:
+        i += 1
 
 # Affichage de la liste épurée
 print("Liste épurée:")
