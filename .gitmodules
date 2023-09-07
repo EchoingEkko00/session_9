@@ -1,0 +1,3 @@
+[submodule "projet_integrer/projet-ose"]
+	path = projet_integrer/projet-ose
+	url = git@github.com:420-andrelaurendeau/projet-ose.git
