@@ -17,15 +17,15 @@ vieCourante = 0
 motEssai:str
 playing = True
 while playing:
-    #random.choice(mots).lower()
-    motHasard = "aeaab".lower()
+    motHasard = random.choice(mots).upper()
     print(motHasard, "est le mot a deviner")
     while (vieCourante != nombreDeVie) :
         print("Esssai no", vieCourante + 1)
         while True:
             motEssai = input("Entrez mot essai : ").lower()
-            if len(motEssai) == 5:
+            if (mots.__contains__(motEssai) and len(motEssai) == 5) :
                 break
+        motEssai = motEssai.upper()
         listeLettre = list(motHasard)
         if (motEssai == motHasard) :
             print("Bravo, vous avez gagne")
