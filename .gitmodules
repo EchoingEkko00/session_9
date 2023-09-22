@@ -1,3 +1,6 @@
 [submodule "projet_integrer/projet-ose"]
 	path = projet_integrer/projet-ose
 	url = git@github.com:420-andrelaurendeau/projet-ose.git
+[submodule "veille_techno/projet1Veille"]
+	path = veille_techno/projet1Veille
+	url = git@github.com:PureLeafGreen/projet1Veille.git
