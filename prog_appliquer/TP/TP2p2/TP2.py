@@ -17,12 +17,49 @@ bit8 = LED(11)
 rgbRed = LED(16)
 rgbGreen = LED(20)
 rgbBlue = LED(21)
+rgbRed.on()
+rgbGreen.on()
+rgbBlue.on()
 error = True
+onlyNumber = False
+onlyLetter = False
+#Braille dictionary
+braille = {
+    'A': '100000',
+    'B': '101000',
+    'C': '110000',
+    'D': '110100',
+    'E': '100100',
+    'F': '111000',
+    'G': '111100',
+    'H': '101100',
+    'I': '011000',
+    'J': '011100',
+    'K': '100010',
+    'L': '101010',
+    'M': '110010',
+    'N': '110110',
+    'O': '100110',
+    'P': '111010',
+    'Q': '111110',
+    'R': '101110',
+    'S': '011010',
+    'T': '011110',
+    'U': '100011',
+    'V': '101011',
+    'W': '011101',
+    'X': '110011',
+    'Y': '110111',
+    'Z': '100111',
+    ' ': '000000',
+    '-': '000000'
+}
 while error:
     userInput = input("Quelle est votre entrée? : ")
-    if userInput.isdigit():
+    if userInput.isdigit() or userInput.isdigit and userInput[0] == "-":
         if int(userInput) >= -128 and int(userInput) <= 127:
             error = False
+            onlyNumber = True
             break
         else:
             buzzer.on()
@@ -47,6 +84,7 @@ while error:
                 break
             if i == userInput[-1]:
                 error = False
+                onlyLetter = True
                 break
     #If the string only contains capital letters, numbers and spaces
     else: 
@@ -55,9 +93,8 @@ while error:
         buzzer.off()
         print("Le texte ne doit contenir que des lettres majuscules, des nombres et des espaces")
 print("Le texte est: " + userInput)
-
 #Encode the string if it only digits to binary to send it to the LEDs
-if userInput.isdigit() and int(userInput) > 0:
+if onlyNumber and int(userInput) > 0:
     if int(userInput) >= 128:
         bit8.on()
         userInput = int(userInput) - 128
@@ -86,7 +123,7 @@ if userInput.isdigit() and int(userInput) > 0:
         bit1On = True
         userInput = int(userInput) - 1
 #if the number is negative, the program turn the 8th bit on and turn all the other bits to match the input
-elif int(userInput) < 0:
+elif onlyNumber and int(userInput) < 0:
     bit8.on()
     userInput = int(userInput) + 128
     if int(userInput) >= 64:
@@ -113,24 +150,96 @@ elif int(userInput) < 0:
         bit1.on()
         bit1On = True
         userInput = int(userInput) - 1
-time.sleep(3)
-bit1.off()
-bit2.off()
-bit3.off()
-bit4.off()
-bit5.off()
-bit6.off()
-bit7.off()
-bit8.off()
+if onlyNumber :
+    time.sleep(3)
+    bit1.off()
+    bit2.off()
+    bit3.off()
+    bit4.off()
+    bit5.off()
+    bit6.off()
+    bit7.off()
+    bit8.off()
 
-#Use the 3 first bit to determine the color of the RGB LED, if all the 3 first bit are off, the LED is white
-rgbRed.on()
-rgbGreen.on()
-rgbBlue.on()
-if bit1On: 
-    rgbRed.off()
-if bit2On:
-    rgbGreen.off()
-if bit3On:
-    rgbBlue.off()
-time.sleep(3)
+    if bit1On: 
+        rgbRed.off()
+    if bit2On:
+        rgbGreen.off()
+    if bit3On:
+        rgbBlue.off()
+    time.sleep(3)
+    rgbRed.on()
+    rgbGreen.on()
+    rgbBlue.on()
+#Encode userInput into braille to send it to the LEDs
+if onlyLetter:
+    for i in userInput:
+        if i == "À":
+            i = "A"
+        elif i == "Â":
+            i = "A"
+        elif i == "É":
+            i = "E"
+        elif i == "È":
+            i = "E"
+        elif i == "Ê":
+            i = "E"
+        elif i == "Ë":
+            i = "E"
+        elif i == "Î":
+            i = "I"
+        elif i == "Ï":
+            i = "I"
+        elif i == "Ô":
+            i = "O"
+        elif i == "Û":
+            i = "U"
+        elif i == "Ù":
+            i = "U"
+        elif i == "Ü":
+            i = "U"
+        elif i == "Ç":
+            i = "C"
+        if i == " ":
+            bit1.off()
+            bit2.off()
+            bit3.off()
+            bit4.off()
+            bit5.off()
+            bit6.off()
+            bit7.off()
+            bit8.off()
+            time.sleep(1)
+        for j in range(0, len(braille[i])):
+            if braille[i][j] == "1":
+                if j == 0:
+                    bit1.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+                elif j == 1:
+                    bit2.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+                elif j == 2:
+                    bit3.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+                elif j == 3:
+                    bit4.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+                elif j == 4:
+                    bit5.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+                elif j == 5:
+                    bit6.on()
+                    buzzer.blink(0.1, 0.1, 1)
+                    time.sleep(0.5)
+        time.sleep(1)
+        bit1.off()
+        bit2.off()
+        bit3.off()
+        bit4.off()
+        bit5.off()
+        bit6.off()
