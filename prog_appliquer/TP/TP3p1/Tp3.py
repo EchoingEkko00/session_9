@@ -38,6 +38,9 @@ def removeWaitingSeconds():
 
 def stopProgram():
     global programStarted
+    global rgbLed
+    rgbLed.color = (0, 0, 0)
+    rgbLed.close()
     programStarted = False
     print("Le programme est maintenant arrêté")
     proc.kill()
