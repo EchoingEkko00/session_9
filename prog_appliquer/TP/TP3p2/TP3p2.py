@@ -43,20 +43,41 @@ GPIO.setup(listeLeds,GPIO.OUT) # on met la broche en mode sortie
 GPIO.output(listeLeds,GPIO.HIGH) # on l’allume (HIGH = 3.3 volts)
 time.sleep(2)
 GPIO.output(listeLeds,GPIO.LOW) # on l’allume (HIGH = 3.3 volts)
-while True:
-    v5 = adc.lectureAnalogique(0) # on lit le canal A0 sur le convertisseur
-    vPot = adc.lectureAnalogique(1)
-    print("v5 : " + str(v5))
-    if v5 != 0 :
-        whichLed = int(round(v5/(255/nbLeds)))
-    else :
-        whichLed = 0
-    print("numero de la led : " + str(whichLed))
-    if (whichLed == 0) :
-        GPIO.output(listeLeds,GPIO.LOW)
-    else :
-        GPIO.output(listeLeds[0:whichLed],GPIO.HIGH)
-        # From the end to whichLed the leds are off
-        GPIO.output(listeLeds[whichLed:],GPIO.LOW)
-    
-    
+
+def animation() :
+    global listeLeds
+    global whichLed
+
+    for i in range(whichLed) :
+            GPIO.output(listeLeds[i],GPIO.HIGH)
+            time.sleep(0.1)
+    for i in range(whichLed) :
+        GPIO.output(listeLeds[whichLed-i-1],GPIO.LOW)
+        time.sleep(0.1)
+try :
+    while True:
+        v5 = adc.lectureAnalogique(0) # on lit le canal A0 sur le convertisseur
+        vPot = adc.lectureAnalogique(1)
+        print("v5 : " + str(v5))
+        if v5 != 0 :
+            whichLed = int(round(v5/(255/nbLeds)))
+        else :
+            whichLed = 0
+        print("numero de la led : " + str(whichLed))
+        if (whichLed == 0) :
+            GPIO.output(listeLeds,GPIO.LOW)
+            time.sleep(1)
+        else :
+            animation()
+except KeyboardInterrupt:
+    print("Attrape Ctrl-C")
+except Exception as e:
+    print("Erreur inattendue...")
+    print(str(e))
+finally:
+    print("Fin du programme")
+    adc.close()
+    GPIO.cleanup()
+    sys.exit(0)
+
+
