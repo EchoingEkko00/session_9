@@ -2,7 +2,7 @@ from threading import Thread
 from gpiozero import AngularServo, LEDCharDisplay, Button, LEDCharFont
 from time import sleep
 import tkinter as tk
-
+import sys
 my_font = LEDCharFont({
     " ": (0,0,0,0,0,0,0),
     'A': (1, 1, 1, 0, 1, 1, 1),
@@ -53,6 +53,7 @@ buttonBleu = Button(17)
 userInputTemp = ""
 userInput = ""
 alreadyShowed = False
+entry = ""
 
 def getAnglePosition() :
     global servo
@@ -71,10 +72,13 @@ def get_input():
     global userInput
     global userInputTemp
     global alreadyShowed
+    global entry
     userInputTemp = entry.get()
     if (userInputTemp == ""):
         print("Peut pas etre vide")
         return
+    if (not userInputTemp.isalnum() and (not userInputTemp.isalpha() and not userInputTemp.isdigit())):
+        print("Doit etre soit des lettres soit des chiffres ou les deux")
     else :
         userInputTemp = userInput
         userInput = entry.get()
@@ -118,30 +122,49 @@ def programe():
                 sleep(1)
             alreadyShowed = True
             ledChar.value = getAnglePosition()
+    
 
+def drawing() :
+    global entry
+    root = tk.Tk()
+    root.title("Tkinter Example")
 
-root = tk.Tk()
-root.title("Tkinter Example")
+    # Blue Button
+    blue_button = tk.Button(root, text="Tourner le bras de +45 degres", fg="blue", command=upLever)
+    blue_button.pack()
 
-# Blue Button
-blue_button = tk.Button(root, text="Tourner le bras de +45 degres", fg="blue", command=upLever)
-blue_button.pack()
+    # Red Button
+    red_button = tk.Button(root, text="Tourner le bras de -45 degres", fg="red", command=downLever)
+    red_button.pack()
 
-# Red Button
-red_button = tk.Button(root, text="Tourner le bras de -45 degres", fg="red", command=downLever)
-red_button.pack()
+    # Entry Widget
+    entry = tk.Entry(root)
+    entry.pack()
 
-# Entry Widget
-entry = tk.Entry(root)
-entry.pack()
+    # Black Button
+    black_button = tk.Button(root, text="Afficher le text sur le segment", fg="black", command=get_input)
+    black_button.pack()
 
-# Black Button
-black_button = tk.Button(root, text="Afficher le text sur le segment", fg="black", command=get_input)
-black_button.pack()
+    root.mainloop()
+
 
 #Start both threads
-Thread(target=programe).start()
-root.mainloop()
+if __name__ == "__main__":
+    program_thread = Thread(target=programe)
+    drawing_thread = Thread(target=drawing)
 
+    program_thread.daemon = True  # Set the program thread as a daemon
+    drawing_thread.daemon = True  # Set the drawing thread as a daemon
 
+    program_thread.start()
+    drawing_thread.start()
 
+    try:
+        program_thread.join()
+        drawing_thread.join()
+    except (KeyboardInterrupt, AttributeError):
+        print("Program stopped by user")
+        ledChar.close()
+        buttonBleu.close()
+        buttonRouge.close()
+        sys.exit(0)
