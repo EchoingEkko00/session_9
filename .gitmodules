@@ -4,6 +4,6 @@
 [submodule "veille_techno/projet1Veille"]
 	path = veille_techno/projet1Veille
 	url = git@github.com:PureLeafGreen/projet1Veille.git
-[submodule "veille_techno/projet2Veille"]
-	path = veille_techno/projet2Veille
-	url = git@github.com:PureLeafGreen/projet2Veille.git
+[submodule "veille_techno/portefolioVUEJS"]
+	path = veille_techno/portefolioVUEJS
+	url = git@github.com:PureLeafGreen/portefolioVUEJS.git
