@@ -96,6 +96,7 @@ try:
         calorifere.value = PWM_max - calculateCarolifere()
         afficherTemperature()
         afficherPhoto()
+        time.sleep(0.5)
 except KeyboardInterrupt:
     lcd.clear()
     lcd.setCursor(0,0)
@@ -117,4 +118,11 @@ except Exception as e:
     print("Un fil s'est debranché")
     sys.exit(0)
     
+# Question 1 : La photoresistance monte quand c'est sombre et descend quand c'est lumineux.
+# Il a fallu que je lui fasse soustraire la valeur maximale que je peut
+# avoir qui est 255 moins la lecture analogique pour avoir l'avoir dans le bon sense qui est plus proche de 0 c'est sombre et 255 c'est lumineux.
+
+# Question 2 : La thermoresistance monte quand c'est froid et baisse quand c'est chaud. 
+# Pour l'avoir dans le bon sense où plus c'est chaud plus la valeur est grande, il fallait que je le fasse soustraire à la valeur maximale pour être dans le bon sense
+# qui est plus proche de 0 c'est froid et 255 c'est chaud.
 
