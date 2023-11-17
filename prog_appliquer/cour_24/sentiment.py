@@ -29,7 +29,7 @@ sentim_analyseur.add_feat_extractor(extract_unigram_feats, unigrams=unigrammes)
 training_set = sentim_analyseur.apply_features(training_docs)
 
 test_set = sentim_analyseur.apply_features(testing_docs)
-sentim_analyseur.train(NaiveBayesClassifier.train, training_set)
+sentim_analyseur.train(MaxentClassifier.train, training_set)
 
 for cle,valeur in sorted(sentim_analyseur.evaluate(test_set).items()):
 	print('{0}: {1}'.format(cle, valeur))
