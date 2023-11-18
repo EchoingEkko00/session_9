@@ -1,16 +1,9 @@
 import numpy as np, sys
 import matplotlib.pyplot as plt
 
-lesPertes = []
 lesIterations = []
-apprentissage = 0.005
-apprentissage2 = 0.010
-apprentissage3 = 0.020
-def tracerDonnees(X,Y):
-    plt.title(apprentissage, fontsize = 20) # titre
-    plt.xlabel("Iterations", fontsize = 20)   # abscisse
-    plt.ylabel("Perte", fontsize = 20) # ordonné
-    plt.scatter(X, Y)  
+lesPertes = []
+apprentissage = [[0.005, 4000],[0.010, 2000],[0.020, 1000]]  
 # Prédictions de Y à partir des X pour un modèle (m,b) 
 def predire(X, m, b):
     Y = m * X + b
@@ -44,17 +37,22 @@ def entraine(X, Y, iterations, ta): # ta = taux d'apprentissage
     return m, b
 if __name__ == "__main__":
     # Importer les données dans deux tableaux distinc ts (unpack)
-    X, Y = np.loadtxt("pizza.txt", skiprows=1, unpack=True)                       
-    # On entraîne de notre modèle
-    m, b = entraine(X, Y, 3000, apprentissage)
+    X, Y = np.loadtxt("pizza.txt", skiprows=1, unpack=True)
+    # # On entraîne de notre modèle
+    m, b = entraine(X, Y, apprentissage[0][1], apprentissage[0][0])
+
+    # TODO: Pour changer le taux d'apprentissage, il faut changer la valeur de apprentissage[0][0] 
+    # le premier [] de 0 a 2 pour changer le taux d'apprentissage
+
+    plt.title(apprentissage[0][0], fontsize = 20) # titre
+    plt.xlabel("Iterations", fontsize = 20)   # abscisse
+    plt.ylabel("Perte", fontsize = 20) # ordonné
+    plt.plot(lesIterations, lesPertes, color = 'blue', label = 'La perte en fonction des iterations') 
+    plt.xlim(0, max(lesIterations))
+    plt.ylim(0, max(lesPertes))
     # Visualisation et prédiction avec notre modèle
-    print("Notre modèle: m = " + str(round(m, 2))+ " b = " + str(round(b, 2)))
-    tracerDonnees(lesIterations, lesPertes)
-    plt.show()                               
-    # Faisons une prédiction avec notre modèle
-    reservations = 21
-    print("Prédictions: avec " + str(reservations)
-      + " réservations, on prépare " + str(int(predire(reservations, m, b))) + " pizzas.")
+    # print("Notre modèle: m = " + str(round(m, 2))+ " b = " + str(round(b, 2)))
+    plt.show()                            
 
 
 
