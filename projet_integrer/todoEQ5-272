@@ -1,0 +1,6 @@
+# Faire le mode mobile
+- Changer le sidebar (tout les roles)
+- Gerer le overflow en telephonne (tout les roles)
+- Ajouter les liens pour les pages (tout les roles)
+
+# Fix le fetch qui donne un toast erreur en employer (FAIT) Demander a marc son on a besoin du updateCandidature()
