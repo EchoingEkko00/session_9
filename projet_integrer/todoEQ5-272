@@ -1,6 +1,5 @@
-# Faire le mode mobile
-- Changer le sidebar (tout les roles)
-- Gerer le overflow en telephonne (tout les roles)
-- Ajouter les liens pour les pages (tout les roles)
+- Interview refuser ne peut pas se faire reschedule
+- doit afficher l'heure ou description de l'interview
 
-# Fix le fetch qui donne un toast erreur en employer (FAIT) Demander a marc son on a besoin du updateCandidature()
+-Connexion de etudiant a employeur donne un 500 (reparer)
+
