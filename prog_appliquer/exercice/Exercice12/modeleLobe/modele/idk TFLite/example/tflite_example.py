@@ -2,44 +2,36 @@
 #   Copyright (c) Microsoft Corporation.  All rights reserved.
 #  -------------------------------------------------------------
 """
-Skeleton code showing how to load and run the TensorFlow SavedModel export package from Lobe.
+Skeleton code showing how to load and run the TensorFlow Lite export package from Lobe.
 """
-import argparse
-import os
-import json
-import numpy as np
-from threading import Lock
 
-# printing only warnings and error messages
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
+import argparse
+import json
+import os
+
+import numpy as np
+from PIL import Image
 
 try:
-    import tensorflow as tf
-    from PIL import Image
+    import tflite_runtime.interpreter as tflite
 except ImportError:
-    raise ImportError("ERROR: Failed to import libraries. Please refer to READEME.md file\n")
+    from tensorflow import lite as tflite
 
 EXPORT_MODEL_VERSION = 1
 
 
-class TFModel:
+class TFLiteModel:
     def __init__(self, dir_path) -> None:
-        # Assume model is in the parent directory for this file
-        self.model_dir = os.path.dirname(dir_path)
-        # make sure our exported SavedModel folder exists
-        with open(os.path.join(self.model_dir, "signature.json"), "r") as f:
+        """Method to get name of model file. Assumes model is in the parent directory for script."""
+        model_dir = os.path.dirname(dir_path)
+        with open(os.path.join(model_dir, "signature.json"), "r") as f:
             self.signature = json.load(f)
-        self.model_file = os.path.join(self.model_dir, self.signature.get("filename"))
+        self.model_file = os.path.join(model_dir, self.signature.get("filename"))
         if not os.path.isfile(self.model_file):
             raise FileNotFoundError(f"Model file does not exist")
-        self.inputs = self.signature.get("inputs")
-        self.outputs = self.signature.get("outputs")
-        self.lock = Lock()
-
-        # loading the saved model
-        self.model = tf.saved_model.load(tags=self.signature.get("tags"), export_dir=self.model_dir)
-        self.predict_fn = self.model.signatures["serving_default"]
-
+        self.interpreter = None
+        self.signature_inputs = self.signature.get("inputs")
+        self.signature_outputs = self.signature.get("outputs")
         # Look for the version in signature file.
         # If it's not found or the doesn't match expected, print a message
         version = self.signature.get("export_model_version")
@@ -48,19 +40,36 @@ class TFModel:
                 f"There has been a change to the model format. Please use a model with a signature 'export_model_version' that matches {EXPORT_MODEL_VERSION}."
             )
 
-    def predict(self, image: Image.Image) -> dict:
-        # pre-processing the image before passing to model
-        image = self.process_image(image, self.inputs.get("Image").get("shape"))
+    def load(self) -> None:
+        """Load the model from path to model file"""
+        # Load TFLite model and allocate tensors.
+        self.interpreter = tflite.Interpreter(model_path=self.model_file)
+        self.interpreter.allocate_tensors()
+        # Combine the information about the inputs and outputs from the signature.json file with the Interpreter runtime
+        input_details = {detail.get("name"): detail for detail in self.interpreter.get_input_details()}
+        self.model_inputs = {key: {**sig, **input_details.get(sig.get("name"))} for key, sig in self.signature_inputs.items()}
+        output_details = {detail.get("name"): detail for detail in self.interpreter.get_output_details()}
+        self.model_outputs = {key: {**sig, **output_details.get(sig.get("name"))} for key, sig in self.signature_outputs.items()}
+        if "Image" not in self.model_inputs:
+            raise ValueError("Tensorflow Lite model doesn't have 'Image' input! Check signature.json, and please report issue to Lobe.")
 
-        with self.lock:
-            # create the feed dictionary that is the input to the model
-            feed_dict = {}
-            # first, add our image to the dictionary (comes from our signature.json file)
-            feed_dict[list(self.inputs.keys())[0]] = tf.convert_to_tensor(image)
-            # run the model!
-            outputs = self.predict_fn(**feed_dict)
-            # return the processed output
-            return self.process_output(outputs)
+    def predict(self, image) -> dict:
+        """
+        Predict with the TFLite interpreter!
+        """
+        if self.interpreter is None:
+            self.load()
+
+        # process image to be compatible with the model
+        input_data = self.process_image(image, self.model_inputs.get("Image").get("shape"))
+        # set the input to run
+        self.interpreter.set_tensor(self.model_inputs.get("Image").get("index"), input_data)
+        self.interpreter.invoke()
+
+        # grab our desired outputs from the interpreter!
+        # un-batch since we ran an image with batch size of 1, and convert to normal python types with tolist()
+        outputs = {key: self.interpreter.get_tensor(value.get("index")).tolist()[0] for key, value in self.model_outputs.items()}
+        return self.process_output(outputs)
 
     def process_image(self, image, input_shape) -> np.ndarray:
         """
@@ -86,20 +95,18 @@ class TFModel:
 
         # make 0-1 float instead of 0-255 int (that PIL Image loads by default)
         image = np.asarray(image) / 255.0
-        # pad with an extra batch dimension as expected by the model
-        return np.expand_dims(image, axis=0).astype(np.float32)
+        # format input as model expects
+        return image.reshape(input_shape).astype(np.float32)
 
     def process_output(self, outputs) -> dict:
-        # do a bit of postprocessing
+        # postprocessing! convert any byte strings to normal strings with .decode()
         out_keys = ["label", "confidence"]
-        results = {}
-        # since we actually ran on a batch of size 1, index out the items from the returned numpy arrays
-        for key, tf_val in outputs.items():
-            val = tf_val.numpy().tolist()[0]
+        for key, val in outputs.items():
             if isinstance(val, bytes):
-                val = val.decode()
-            results[key] = val
-        confs = results["Confidences"]
+                outputs[key] = val.decode()
+
+        # get list of confidences from prediction
+        confs = list(outputs.values())[0]
         labels = self.signature.get("classes").get("Label")
         output = [dict(zip(out_keys, group)) for group in zip(labels, confs)]
         sorted_output = {"predictions": sorted(output, key=lambda k: k["confidence"], reverse=True)}
@@ -114,7 +121,8 @@ if __name__ == "__main__":
 
     if os.path.isfile(args.image):
         image = Image.open(args.image)
-        model = TFModel(dir_path=dir_path)
+        model = TFLiteModel(dir_path=dir_path)
+        model.load()
         outputs = model.predict(image)
         print(f"Predicted: {outputs}")
     else:
