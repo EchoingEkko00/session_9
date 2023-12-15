@@ -4,4 +4,4 @@ dht = DHT.DHT(4) # ATTENTION: vérifier ce que vous avez à la ligne 26 du
 # le numéro de la broche
 verification = dht.readDHT11() # on fait une lecture
 if (verification is dht.DHTLIB_OK): # si les lectures sont valides, on peut les lire
-print(dht.humidity, dht.temperature)
+    print(dht.humidity, dht.temperature)

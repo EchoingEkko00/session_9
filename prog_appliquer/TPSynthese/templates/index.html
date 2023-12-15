@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask Grid Website</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .col-2 {
+            border: 1px solid black;
+            text-align: center;
+
+        }
+        .col-10 {
+            border: 1px solid black;
+            text-align: center;
+        }
+        .col-6 {
+            border: 1px solid black;
+            text-align: center;
+        }
+        .col-8 {
+            border: 1px solid black;
+            text-align: center;
+        }
+        p {
+            margin: auto;
+        } 
+        tr > td.tmp {
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table class="table">
+            <tr>
+                <td class="col-2" colspan="2">
+                    <p>Date et Heure</p>
+                </td>
+                <td class="col-2" colspan="2">
+                    <p>Nothing</p>
+                </td>
+                <td class="col-6" rowspan="4" colspan="6">
+                    <p>Gros bloc</p>
+                </td>
+                <td class="col-2" rowspan="4" colspan="2">
+                    <button>Rafraichir la page</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-2" colspan="2">
+                    <p>Categorie</p>
+                </td>
+                <td class="col-2" colspan="2">
+                    <p>Nothing</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-2" colspan="2">
+                    <p>Distance</p>
+                </td>
+                <td class="col-2" colspan="2">
+                    <p>Nothing</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-2" colspan="2">
+                    <p>SMS</p>
+                </td>
+                <td class="col-2" colspan="2">
+                    <p>Nothing</p>
+                </td>
+            </tr>
+            <tr class="tmp">
+                <td class="col-2 tmp" colspan="2">
+                    <p>Temperature</p>
+                </td>
+                <td class="col-10 tmp" colspan="10">
+                    <p>Nothing</p>
+                </td>
+            </tr>
+            <tr  class="tmp">
+                <td class="col-2 tmp" colspan="2">
+                    <p>Humidite</p>
+                </td>
+                <td class="col-10 tmp" colspan="10">
+                    <p>Nothing</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-2" colspan="2">
+                    <p>Message</p>
+                </td>
+                <td class="col-8" colspan="8">
+                    <p>Nothing</p>
+                </td>
+                <td class="col-2" colspan="2">
+                    <button>Envoyer</button>
+                </td>
+            </tr>
+        </table>
+    </div>  
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
