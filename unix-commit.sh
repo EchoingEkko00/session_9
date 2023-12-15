@@ -1,4 +1,5 @@
 #!/bin/bash
+
 echo "Message pour le commit : "
 read message
 git add .
