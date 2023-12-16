@@ -7,11 +7,11 @@
 </head>
 <body>
     <div class="container align-middle">
-        <h1>Login</h1>
+        <h1>Page de connexion</h1>
         <form action="/authenticate" method="post">
-            <label for="password">Password (4 digits):</label><br>
+            <label for="password">Entrez le mot de passse (4 digits):</label><br>
             <input type="password" id="password" name="password" pattern="[0-9]{4}" title="Please enter a 4-digit number" required><br><br>
-            <input type="submit" value="Login">
+            <input type="submit" value="Soumettre">
         </form>
         {% if error %}
             <p style="color: red;">Invalid password. Please try again.</p>

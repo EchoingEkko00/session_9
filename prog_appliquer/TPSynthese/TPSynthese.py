@@ -9,6 +9,7 @@ dht = DHT.DHT(4)
 humidity = ""
 temperature = ""
 categorie = ""
+sms = ""
 
 model = ImageModel.load('./modele')
 capture = cv2.VideoCapture(0)
@@ -35,7 +36,9 @@ def get_sensor_data():
     while True:
         verification = dht.readDHT11()
         if verification == dht.DHTLIB_OK:
+#            humidity = str(1)
             humidity = str(dht.humidity)
+#            temperature = str(2)
             temperature = str(dht.temperature)
 
 def create_app():
@@ -59,7 +62,6 @@ def create_app():
     def send():
         print(request.form['message'])
         return redirect(url_for('index'))
-
     @app.route('/index')
     def index():
         global humidity
@@ -68,7 +70,11 @@ def create_app():
         categorie = picture()
         date = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         image_path = 'img1.jpg'
-        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image_path=image_path)
+        if (categorie == "Arme"):
+            sms = date + "\nPersonne armee"
+        #elif (distance <= 10):
+        #   sms = date + "\nPersonne trop proche"
+        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image_path=image_path, sms=sms)
 
     return app
 
