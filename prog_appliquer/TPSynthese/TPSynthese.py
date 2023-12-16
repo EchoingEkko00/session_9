@@ -4,15 +4,19 @@ from threading import Thread
 from datetime import datetime
 import cv2
 from lobe import ImageModel
+from gpiozero import DistanceSensor
 
 # TODO: Ajouter le KeyPad pour le login
-# TODO: Ajouter le capteur de distance
+# TODO: Ajouter le capteur de distance (Fait)
 # TODO: Ajouter le message vers la matrice de LED
 
 dht = DHT.DHT(4)
+sensor = DistanceSensor(20, 16)
+
 humidity = ""
 temperature = ""
 categorie = ""
+distance = 0
 sms = ""
 
 model = ImageModel.load('./modele')
@@ -69,14 +73,16 @@ def create_app():
         global humidity
         global temperature
         global categorie
+        global distance
         date = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        distance = sensor.distance * 100
         categorie = picture()
         image_path = 'img1.jpg'
         if (categorie == "Arme"):
             sms = date + "\nPersonne armee"
-        #elif (distance <= 10):
-        #   sms = date + "\nPersonne trop proche"
-        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image_path=image_path, sms=sms)
+        elif (distance <= 10):
+           sms = date + "\nPersonne trop proche"
+        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image_path=image_path, sms=sms, distance=distance)
     return app
 
 if __name__ == '__main__':
