@@ -5,6 +5,10 @@ from datetime import datetime
 import cv2
 from lobe import ImageModel
 
+# TODO: Ajouter le KeyPad pour le login
+# TODO: Ajouter le capteur de distance
+# TODO: Ajouter le message vers la matrice de LED
+
 dht = DHT.DHT(4)
 humidity = ""
 temperature = ""
