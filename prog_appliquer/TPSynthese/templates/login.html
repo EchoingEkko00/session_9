@@ -17,5 +17,10 @@
             <p style="color: red;">Invalid password. Please try again.</p>
         {% endif %}
     </div>
+    <script>
+        if ( reading.length == 4 ) {
+            document.getElementById("password").value = reading;
+        }
+    </script>
 </body>
 </html>

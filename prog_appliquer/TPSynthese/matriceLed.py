@@ -9,7 +9,7 @@ latchPin = OutputDevice(27)  # GPIO pin 27 (corresponding to 13 in BCM numbering
 clockPin = OutputDevice(22)  # GPIO pin 22 (corresponding to 15 in BCM numbering)
 
 
-leds = [OutputDevice(pin) for pin in range(64)]
+#leds = [OutputDevice(pin) for pin in range(64)]
 
 pic = [0x1c, 0x22, 0x51, 0x45, 0x45, 0x51, 0x22, 0x1c]
 data = [     # data of "0-F"
@@ -30,55 +30,72 @@ data = [     # data of "0-F"
     0x00, 0x00, 0x7F, 0x41, 0x41, 0x3E, 0x00, 0x00, # "D"
     0x00, 0x00, 0x7F, 0x49, 0x49, 0x41, 0x00, 0x00, # "E"
     0x00, 0x00, 0x7F, 0x48, 0x48, 0x40, 0x00, 0x00, # "F"
+    0x00, 0x00, 0x3E, 0x41, 0x45, 0x3D, 0x00, 0x00, # "G"
+    0x00, 0x00, 0x7F, 0x08, 0x08, 0x7F, 0x00, 0x00, # "H"
+    0x00, 0x00, 0x41, 0x7F, 0x41, 0x00, 0x00, 0x00, # "I"
+    0x00, 0x00, 0x02, 0x01, 0x41, 0x7E, 0x40, 0x00, # "J"
+    0x00, 0x00, 0x7F, 0x08, 0x14, 0x63, 0x00, 0x00, # "K"
+    0x00, 0x00, 0x7F, 0x01, 0x01, 0x01, 0x00, 0x00, # "L"
+    0x00, 0x00, 0x7F, 0x30, 0x0C, 0x7F, 0x00, 0x00, # "M"
+    0x00, 0x00, 0x7F, 0x30, 0x0C, 0x7F, 0x00, 0x00, # "N"
+    0x00, 0x00, 0x3E, 0x41, 0x41, 0x3E, 0x00, 0x00, # "O"
+    0x00, 0x00, 0x7F, 0x48, 0x48, 0x30, 0x00, 0x00, # "P"
+    0x00, 0x00, 0x3E, 0x41, 0x43, 0x3F, 0x00, 0x00, # "Q"
+    0x00, 0x00, 0x7F, 0x48, 0x4C, 0x33, 0x00, 0x00, # "R"
+    0x00, 0x00, 0x32, 0x49, 0x49, 0x26, 0x00, 0x00, # "S"
+    0x00, 0x00, 0x40, 0x7F, 0x40, 0x00, 0x00, 0x00, # "T"
+    0x00, 0x00, 0x7E, 0x01, 0x01, 0x7E, 0x00, 0x00, # "U"
+    0x00, 0x00, 0x7C, 0x03, 0x03, 0x7C, 0x00, 0x00, # "V"
+    0x00, 0x00, 0x7F, 0x06, 0x06, 0x7F, 0x00, 0x00, # "W"
+    0x00, 0x00, 0x63, 0x1C, 0x1C, 0x63, 0x00, 0x00, # "X"
+    0x00, 0x00, 0x70, 0x0F, 0x0F, 0x70, 0x00, 0x00, # "Y"
+    0x00, 0x00, 0x61, 0x59, 0x49, 0x47, 0x00, 0x00, # "Z"
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # " "
 ]
 
-
-def shift_out(data_pin, clock_pin, order, val):
+def shiftOut(d_pin, c_pin, order, val):
     for i in range(0, 8):
-        clock_pin.off()
-        if order == 1:
-            data_pin.value = (0x01 & (val >> i)) == 0x01
-        elif order == 2:
-            data_pin.value = (0x80 & (val << i)) == 0x80
-        clock_pin.on()
-
+        c_pin.off()
+        if order == LSBFIRST:
+            d_pin.value = (0x01 & (val >> i) == 0x01)
+        elif order == MSBFIRST:
+            d_pin.value = (0x80 & (val << i) == 0x80)
+        c_pin.on()
 
 def loop():
     while True:
-        for j in range(0, 500):  # Repeat enough times to display the smiling face for a period of time
-            x = 0x80
-            for i in range(0, 8):
+        for j in range(0,500): # Repeat enough times to display the smiling face a period of time
+            x=0x80
+            for i in range(0,8):
                 latchPin.off()
-                shift_out(dataPin, clockPin, 2, pic[i])  # Line information to first stage 74HC959
-                shift_out(dataPin, clockPin, 2, ~x)  # Column information to second stage 74HC959
-                latchPin.on()
-                time.sleep(0.001)  # Display the next column
-                x >>= 1
+                shiftOut(dataPin,clockPin,MSBFIRST,pic[i]) #first shift data of line information to first stage 74HC959
 
-        for k in range(0, len(data) - 8):  # Total number of "0-F" columns
-            for j in range(0, 20):  # Times of repeated displaying LEDMatrix in every frame
-                x = 0x80  # Set the column information to start from the first column
-                for i in range(k, k + 8):
+                shiftOut(dataPin,clockPin,MSBFIRST,~x) #then shift data of column information to second stage 74HC959
+                latchPin.on() # Output data of two stage 74HC595 at the same time
+                time.sleep(0.001) # display the next column
+                x>>=1
+        for k in range(0,len(data)-8): #len(data) total number of "0-F" columns 
+            for j in range(0,20): # times of repeated displaying LEDMatrix in every frame, the bigger the "j", the longer the display time.
+                x=0x80      # Set the column information to start from the first column
+                for i in range(k,k+8):
                     latchPin.off()
-                    shift_out(dataPin, clockPin, 2, data[i])
-                    shift_out(dataPin, clockPin, 2, ~x)
+                    shiftOut(dataPin,clockPin,MSBFIRST,data[i])
+                    shiftOut(dataPin,clockPin,MSBFIRST,~x)
                     latchPin.on()
                     time.sleep(0.001)
-                    x >>= 1
-
+                    x>>=1
 picTest = [0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80]
 def testLED(): # affiche durant 0.1 seconde chacune des 64 leds de gauche à droite, de haut en bas
-    x = 0x80
-    for i in range(64):
+    x=0x80
+    for i in range(0,64):
         latchPin.off()
-        shift_out(dataPin, clockPin, 2, picTest[i % 8])  # Line information
-        shift_out(dataPin, clockPin, 2, ~x)  # Column information
+        shiftOut(dataPin,clockPin,MSBFIRST,picTest[i%8]) #first shift data of line information to first stage 74HC959
+        shiftOut(dataPin,clockPin,MSBFIRST,~x) #then shift data of column information to second stage 74HC959
         latchPin.on()
-        time.sleep(0.1)
-        if i in [7, 15, 23, 31, 39, 47, 55]:
-            x >>= 1
-
+        time.sleep(0.1) # display the next column
+        if i in [7,15,23,31,39,47,55]:
+            x>>=1  
+             
 def destroy():
     dataPin.off()
     latchPin.off()
@@ -87,11 +104,32 @@ def destroy():
     latchPin.close()
     clockPin.close()
 
+def display_string(input_string):
+    for char in input_string:
+        if char.isalnum():  # Check if the character is alphanumeric
+            index = ord(char.upper()) - 64 # Get the index based on the character
+            if char.isdigit():
+                index += 1  # Increment index for digits ('0' is at index 1)
+            else:
+                index += 10  # Increment index for letters ('A' is at index 11)
+            char_data = data[index * 8: (index + 1) * 8]  # Get the data for the character
+            for i in range(0, len(char_data), 8):
+                for j in range(20):  # Display each character for a certain duration
+                    x = 0x80
+                    for k in range(i, i + 8):
+                        latchPin.off()
+                        shiftOut(dataPin, clockPin, MSBFIRST, char_data[k])
+                        shiftOut(dataPin, clockPin, MSBFIRST, ~x)
+                        latchPin.on()
+                        time.sleep(0.001)
+                        x >>= 1
+        time.sleep(1)  # Pause between characters
 
 if __name__ == '__main__':
     print('Program is starting...')
     try:
         testLED()
+        display_string('ABS')
         loop()
     except KeyboardInterrupt:
         destroy()
