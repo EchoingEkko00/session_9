@@ -6,6 +6,7 @@ import cv2
 from lobe import ImageModel
 from gpiozero import DistanceSensor, OutputDevice, LED, Button
 import time
+import base64
 
 # TODO: Ajouter le KeyPad pour le login
 # TODO: Ajouter le capteur de distance (Fait)
@@ -44,7 +45,7 @@ data = [     # data of "0-F"
     0x00, 0x00, 0x7F, 0x41, 0x41, 0x3E, 0x00, 0x00, # "D"
     0x00, 0x00, 0x7F, 0x49, 0x49, 0x41, 0x00, 0x00, # "E"
     0x00, 0x00, 0x7F, 0x48, 0x48, 0x40, 0x00, 0x00, # "F"
-    0x00, 0x00, 0x3E, 0x41, 0x45, 0x3D, 0x00, 0x00, # "G"
+    0x00, 0x00, 0x1C, 0x22, 0x41, 0x41, 0x07, 0x00, # "G"
     0x00, 0x00, 0x7F, 0x08, 0x08, 0x7F, 0x00, 0x00, # "H"
     0x00, 0x00, 0x41, 0x7F, 0x41, 0x00, 0x00, 0x00, # "I"
     0x00, 0x00, 0x02, 0x01, 0x41, 0x7E, 0x40, 0x00, # "J"
@@ -63,9 +64,49 @@ data = [     # data of "0-F"
     0x00, 0x00, 0x7F, 0x06, 0x06, 0x7F, 0x00, 0x00, # "W"
     0x00, 0x00, 0x63, 0x1C, 0x1C, 0x63, 0x00, 0x00, # "X"
     0x00, 0x00, 0x70, 0x0F, 0x0F, 0x70, 0x00, 0x00, # "Y"
-    0x00, 0x00, 0x61, 0x59, 0x49, 0x47, 0x00, 0x00, # "Z"
+    0x00, 0x00, 0x43, 0x45, 0x49, 0x61, 0x00, 0x00, # "Z"
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # " "
 ]
+
+indexOfChar = {
+    ' ': 0,
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7,
+    '7': 8,
+    '8': 9,
+    '9': 10,
+    'A': 11,
+    'B': 12,
+    'C': 13,
+    'D': 14,
+    'E': 15,
+    'F': 16,
+    'G': 17,
+    'H': 18,
+    'I': 19,
+    'J': 20,
+    'K': 21,
+    'L': 22,
+    'M': 23,
+    'N': 24,
+    'O': 25,
+    'P': 26,
+    'Q': 27,
+    'R': 28,
+    'S': 29,
+    'T': 30,
+    'U': 31,
+    'V': 32,
+    'W': 33,
+    'X': 34,
+    'Y': 35,
+    'Z': 36
+}
 
 LSBFIRST = 1
 MSBFIRST = 2
@@ -76,8 +117,9 @@ categorie = ""
 distance = 0
 sms = ""
 keypadPassword = ""
+imgNumber = 1
+isDisplaying = False
 model = ImageModel.load('./modele')
-# capture = cv2.VideoCapture(0)
 def shiftOut(d_pin, c_pin, order, val):
     for i in range(0, 8):
         c_pin.off()
@@ -94,34 +136,32 @@ def destroy():
     latchPin.close()
     clockPin.close()
 def display_string(input_string):
-    for char in input_string:
-        if char.isalnum():  # Check if the character is alphanumeric
-            if char.isdigit():
-                if char == 0:
-                    index = 1
-                else:
-                    index = int(char) + 1  # Get the index based on the digit
-            elif char.isalpha():
-                index = ord(char.upper()) - 54 # Get the index based on the character
-            elif char == ' ':
-                index = 0
-            char_data = data[index * 8: (index + 1) * 8]  # Get the data for the character
-            for i in range(0, len(char_data), 8):
-                for j in range(20):  # Display each character for a certain duration
-                    x = 0x80
-                    for k in range(i, i + 8):
-                        latchPin.off()
-                        shiftOut(dataPin, clockPin, MSBFIRST, char_data[k])
-                        shiftOut(dataPin, clockPin, MSBFIRST, ~x)
-                        latchPin.on()
-                        time.sleep(0.001)
-                        x >>= 1
-        time.sleep(1)  # Pause between characters
-def picture(): 
-        # _, img = capture.read()
-        # cv2.imshow('Frame',img)
-        nomFichier = "./static/img1.jpg"
-        # cv2.imwrite(nomFichier, img)
+    global isDisplaying
+    isDisplaying = True
+    dataCombine = []
+    string = ' ' + input_string + ' '
+    for char in string:
+        index = indexOfChar.get(char.upper(), 0) * 8
+        dataCombine.extend(data[index: index + 8])
+    
+    for k in range(0,len(dataCombine)-8): #len(data) total number of "0-F" columns 
+        for j in range(0,20): # times of repeated displaying LEDMatrix in every frame, the bigger the "j", the longer the display time.
+            x=0x80      # Set the column information to start from the first column
+            for i in range(k,k+8):
+                latchPin.off()
+                shiftOut(dataPin, clockPin, MSBFIRST, dataCombine[i])
+                shiftOut(dataPin, clockPin, MSBFIRST, ~x)
+                latchPin.on()
+                time.sleep(0.001)
+                x >>= 1
+    isDisplaying = False
+def picture():
+        global imgNumber
+        capture = cv2.VideoCapture(-1)
+        ret, img = capture.read()
+        cv2.imshow('A Frame',img)
+        nomFichier = "./static/img" + str(imgNumber) + ".jpg"
+        cv2.imwrite(nomFichier, img)
         print("Capture #1 terminée.")
         resultat = model.predict_from_file(nomFichier)
         # L'étiquette de la prédiction, on l'inscrit sur l'image
@@ -130,7 +170,10 @@ def picture():
         confiance = resultat.labels[0][1]
         # Résultats
         print(f"Prédiction: {etiquette} | Confiance: {confiance * 100: .2f}") 
-        # cv2.putText(img, f"{etiquette} | {confiance * 100: .2f}", (0,100), cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        cv2.putText(img, f"{etiquette} | {confiance * 100: .2f}", (0,100), cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        imgNumber += 1
+        capture.release()
+        cv2.destroyAllWindows()
         return etiquette
 def get_sensor_data():
     global humidity
@@ -154,6 +197,7 @@ def readLine(line, characters, current_input):
         current_input += characters[3]
     line.off()
     return current_input
+
 def read_keypad():
     global keypadPassword
     while True:
@@ -163,7 +207,6 @@ def read_keypad():
         keypadPassword = readLine(L4, ["*", "0", "#", "D"], keypadPassword)
         if len(keypadPassword) == 4:
             print("Input:", keypadPassword)
-            return keypadPassword
         time.sleep(0.2)
 def create_app():
     app = Flask(__name__)
@@ -173,7 +216,7 @@ def create_app():
 
     @app.route('/')
     def login():
-        return render_template('login.html', reading=read_keypad)
+        return render_template('login.html')
     @app.route('/authenticate', methods=['POST'])
     def authenticate():
         password = request.form['password']
@@ -183,27 +226,48 @@ def create_app():
             return render_template('login.html', error=True)
     @app.route('/send' , methods=['POST'])
     def send():
-        print(request.form['message'])
-        display_string(request.form['message'])
-        return redirect(url_for('index'))
+        global isDisplaying
+        data = request.get_json()
+        message = data.get('message')
+        print(message)
+        if (isDisplaying == False):
+            display_string(message)
+        else :
+            while (isDisplaying == True):
+                time.sleep(0.1)
+            display_string(message)
+    @app.route('/getKeypadPassword', methods=['GET'])
+    def getKeypadPassword():
+        global keypadPassword
+        if len(keypadPassword) == 4:
+            tmp = keypadPassword
+            keypadPassword = ""
+            print("API call : " + tmp)
+            return tmp
+        else:
+            return ""
     @app.route('/index')
     def index():
         global humidity
         global temperature
         global categorie
         global distance
+        global sms
+        global imgNumber
         date = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        distance = sensor.distance * 100
+        distance = round(sensor.distance * 100, 2)
         categorie = picture()
-        image_path = 'img1.jpg'
+        with open('./static/img' + str(imgNumber - 1) + '.jpg', 'rb') as img_file :
+            encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
         if (categorie == "Arme"):
             sms = date + "\nPersonne armee"
         elif (distance <= 10):
            sms = date + "\nTrop proche"
-        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image_path=image_path, sms=sms, distance=distance)
+        return render_template('index.html', humidity=humidity, temperature=temperature, date=date, categorie=categorie, image=encoded_string, sms=sms, distance=distance)
     return app
 
 if __name__ == '__main__':
+    Thread(target=read_keypad).start()
     Thread(target=get_sensor_data).start()
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', use_reloader=False)

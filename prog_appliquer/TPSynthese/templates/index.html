@@ -41,10 +41,10 @@
                     <p> {{ date }}</p>
                 </td>
                 <td class="col-6" rowspan="4" colspan="6">
-                    <img src="{{ url_for('static', filename=image_path) }}" alt="Your Image">
+                    <img id="yourImage" src="data:image/jpeg;base64,{{ image }}" alt="Your Image">
                 </td>
                 <td class="col-2" rowspan="4" colspan="2">
-                    <button onclick="window.location.reload()">Rafraichir la page</button>
+                    <button id="refreshButton" onclick="window.location.reload()">Rafraichir la page</button>
                 </td>
             </tr>
             <tr>
@@ -60,7 +60,7 @@
                     <p>Distance</p>
                 </td>
                 <td class="col-2" colspan="2">
-                    <p>{{ distance }}</p>
+                    <p>{{ distance }} cm</p>
                 </td>
             </tr>
             <tr>
@@ -91,18 +91,36 @@
                 <td class="col-2" colspan="2">
                     <p>Message</p>
                 </td>
-                <form action="/send" method="post">
-                    <td class="col-6" colspan="8">
-                        <input type="text" name="message" id="message" placeholder="Message">
-                    </td>
-                    <td class="col-2" colspan="2">
-                        <input type="submit" value="Envoyer">
-                    </td>
+                <td class="col-6" colspan="8">
+                    <input type="text" name="message" id="message" placeholder="Message">
+                </td>
+                <td class="col-2" colspan="2">
+                    <button onclick="sendMessage()">Envoyer</button>
+                </td>
             </tr>
         </table>
     </div>  
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function sendMessage() {
+            var message = document.getElementById("message").value;
+            fetch('/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({message: message})
+            })
+            .then(response => {
+                return response.text(); // Convert response to text
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => console.error('Error sending message:', error));
+        }
+    </script>
 </body>
 </html>

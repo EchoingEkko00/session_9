@@ -18,9 +18,23 @@
         {% endif %}
     </div>
     <script>
-        if ( reading.length == 4 ) {
-            document.getElementById("password").value = reading;
+        function fetchKeypadPassword() {
+            fetch('/getKeypadPassword')
+                .then(response => {
+                    return response.text(); // Convert response to text
+                })
+                .then(password => {
+                    // Update password field if input is of length 4
+                    console.log(password);
+                    if (password.length === 4) {
+                        document.getElementById("password").value = password;
+                    }
+                })
+                .catch(error => console.error('Error fetching password:', error));
         }
+    
+        // Fetch password every 2 seconds
+        setInterval(fetchKeypadPassword, 200);
     </script>
 </body>
 </html>
